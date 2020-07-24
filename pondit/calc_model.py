@@ -61,7 +61,7 @@ def calc_pondit(bc_calc, scalars, site, stage_storage, soils, repo_folder, calib
         bounds = bounds + ((default_params.loc['min', param], default_params.loc['max', param]),)
     
     ## minimize residuals
-    out = scipy.optimize.minimize(residuals, p0, method='SLSQP', bounds=bounds, options={'disp':True, 'eps':0.1, 'ftol':0.00001})
+    out = scipy.optimize.minimize(residuals, p0, method='SLSQP', bounds=bounds, options={'disp':True, 'eps':0.1, 'ftol':0.001})
     print(out) ## print final result
 
     ## calculate final results with optimized model parameters for entier historical period for output
