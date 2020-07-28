@@ -11,10 +11,10 @@ def load_data(scalars, site, folder_in):
     calib_elev_filename = scalars.loc[site, 'calib_elev_filename']
     vol_area_elev_filename = scalars.loc[site, 'vol_area_elev_filename']
     soils_filename = scalars.loc[site, 'soils_filename']
-    stage_storage_sheetname = scalars.loc[site, 'stage_storage_sheetname']
-    soils_sheetname = scalars.loc[site, 'soils_sheetname']
-    calib_area_sheetname = scalars.loc[site, 'calib_area_sheetname']
-    calib_elev_sheetname = scalars.loc[site, 'calib_elev_sheetname']
+    stage_storage_sheet_name = scalars.loc[site, 'stage_storage_sheet_name']
+    soils_sheet_name = scalars.loc[site, 'soils_sheet_name']
+    calib_area_sheet_name = scalars.loc[site, 'calib_area_sheet_name']
+    calib_elev_sheet_name = scalars.loc[site, 'calib_elev_sheet_name']
 
 
     ### load historical climate data
@@ -27,21 +27,21 @@ def load_data(scalars, site, folder_in):
     last_hist_date = hist_climate.loc[len(hist_climate)-1, 'date']
 
     ## load site-specific stage-storage
-    stage_storage = pandas.read_excel(folder_in + vol_area_elev_filename + '.xlsx', sheetname=stage_storage_sheetname)
+    stage_storage = pandas.read_excel(folder_in + vol_area_elev_filename + '.xlsx', sheet_name=stage_storage_sheet_name)
     stage_storage['storage_cuft'] = stage_storage['storage_acft'] * 43560 ## get storage in acre-feet
 
     
     ##load site specific soils data
-    soils = pandas.read_excel(folder_in + soils_filename + '.xlsx', sheetname=soils_sheetname)
+    soils = pandas.read_excel(folder_in + soils_filename + '.xlsx', sheet_name=soils_sheet_name)
 
     ## load calibration specified as pond area
-    area_calib = pandas.read_excel(folder_in + calib_area_filename + '.xlsx', index_col='date', sheetname=calib_area_sheetname)
+    area_calib = pandas.read_excel(folder_in + calib_area_filename + '.xlsx', index_col='date', sheet_name=calib_area_sheet_name)
     area_calib.index = pandas.to_datetime(area_calib.index)
     ### convert pond are to pond elevation
     area_calib['calib_wse_ft'] = np.interp(area_calib['area_sqft'], stage_storage['area_sqft'], stage_storage['elev'])
 
     ## load elevation calibration data, recorded in feet
-    elev_calib = pandas.read_excel(folder_in + calib_elev_filename + '.xlsx', index_col='date', sheetname=calib_elev_sheetname)
+    elev_calib = pandas.read_excel(folder_in + calib_elev_filename + '.xlsx', index_col='date', sheet_name=calib_elev_sheet_name)
     elev_calib.index = pandas.to_datetime(elev_calib.index)
 
     ## create merged calibration data 
