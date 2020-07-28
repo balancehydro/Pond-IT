@@ -3,7 +3,7 @@ channels: !!python/tuple
 - defaults
 - conda-forge
 dependencies:
-- python=3.5.*
+- python=3.6.*
 - pip
 - numpy
 - seaborn
@@ -12,7 +12,7 @@ dependencies:
 - scipy
 - notebook
 - xlrd
-- pywin32
+# - pywin32
 # - pip:
 #   - matplotlib>=3.0.0<4.0.0
 #   - seaborn>=0.9.0<0.10.0
