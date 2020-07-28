@@ -11,7 +11,7 @@ def load_data(scalars, site, folder_in):
     calib_elev_filename = scalars.loc[site, 'calib_elev_filename']
     vol_area_elev_filename = scalars.loc[site, 'vol_area_elev_filename']
     soils_filename = scalars.loc[site, 'soils_filename']
-    stage_storage_sheet_name = scalars.loc[site, 'stage_storage_sheet_name']
+    stage_storage_sheet_name = scalars.loc[site, 'stage_storage_sheetname']
     soils_sheet_name = scalars.loc[site, 'soils_sheet_name']
     calib_area_sheet_name = scalars.loc[site, 'calib_area_sheet_name']
     calib_elev_sheet_name = scalars.loc[site, 'calib_elev_sheet_name']
