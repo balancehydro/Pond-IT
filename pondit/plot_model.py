@@ -1,7 +1,7 @@
 def plot_model(sws_calc, scalars, site, folder_out):
 
     import matplotlib.pylab as plt
-    
+    import datetime
 
     ## make model plot timeseries
     f, ax = plt.subplots(1, 1, figsize=(14, 6))
@@ -10,7 +10,8 @@ def plot_model(sws_calc, scalars, site, folder_out):
     ## plot modeled WSE
     ax.plot(sws_plot['date'], sws_plot['pond_elev'], label='Model (Historical)', zorder=2, color='C0')
  	## plot calibration data (bug in matplotlib which prevents the use of scatter with a datetime columns)
-    ax.plot(sws_plot['date'], sws_plot['calib_wse_ft'], zorder=2, color='C1', label='Calibration Data', linestyle='', marker='o')
+    if 'calib_wse_ft' in sws_calc.columns: #only plot calibration data for historical model which uses calibration data to predict, not for historical design runs
+        ax.plot(sws_plot['date'], sws_plot['calib_wse_ft'], zorder=2, color='C1', label='Calibration Data', linestyle='', marker='o')
     
 
     #plot pond bottom and spillway elev
@@ -28,7 +29,7 @@ def plot_model(sws_calc, scalars, site, folder_out):
     ## create legend using labels
     ax.legend(loc='upper right', ncol=1, bbox_to_anchor=(1.25, 1), fontsize=14)
     ax.set_title(site, fontsize=16)
-    ax.set_xlim('2000-10-01', sws_calc.loc[:, 'date'].max())
+    ax.set_xlim(datetime.datetime.strptime('2000-10-01','%Y-%m-%d'), sws_calc.loc[:, 'date'].max())
 
     ## save figure to output folder, high quality
     f.savefig(folder_out + '/timeseries/' + site + '_timeseries_hist.png', bbox_inches='tight', dpi=330)

@@ -7,8 +7,11 @@ def calc_pondit(bc_calc, scalars, site, stage_storage, soils, repo_folder, calib
     ### load model parameters from scalars sheet for model calculations
     default_params = pandas.read_csv(repo_folder + 'pondit/' + 'Default_Parameters.csv', index_col=0).T
     default_params.index = [x if x!='value' else site for x in default_params.index]
+
+    ## divide lag times by 10 so they are in better numerical scale for model prediction
+    default_params.loc[:, ['deep_fault_flow_lag', 'gw_seep_lag']]  = default_params.loc[:, ['deep_fault_flow_lag', 'gw_seep_lag']] / 10.0 
+
     scalars = pandas.merge(scalars, default_params, right_index=True, left_index=True) ## master inputs with default params for predicting model
-  
     
     ## load indicators for running either gw modules
     gw_seep = scalars.loc[site, 'gw_seep']
@@ -19,13 +22,13 @@ def calc_pondit(bc_calc, scalars, site, stage_storage, soils, repo_folder, calib
 
     ## remove gw_seep parameters if they shouldn't be included in predicting the model
     if gw_seep == 'n':
-        gw_seep_params = ['deep_gw_wshed', 'deep_gw_thresh', 'gw_seep_lag']
+        gw_seep_params = ['gw_seep_wshed', 'gw_seep_thresh', 'gw_seep_lag']
         params_to_fit = [ x for x in params_to_fit if x not in (gw_seep_params)]
         scalars.loc[site, gw_seep_params] = 0 
 
     ## remove gw_fault parameters if they shouldn't be included in predicting the model
     if gw_fault == 'n':
-        gw_fault_params = ['deep_fault_flow_scale', 'deep_fault_flow_thresh', 'deep_fault_flow_lag']
+        gw_fault_params = ['deep_fault_flow_wshed', 'deep_fault_flow_thresh', 'deep_fault_flow_lag']
         params_to_fit = [ x for x in params_to_fit if x not in (gw_fault_params)]
         scalars.loc[site, gw_fault_params] = 0 
     
@@ -104,16 +107,16 @@ def pondit_output(params_model, params_to_fit, scalars, bc_calc, soils, site, st
     spill_vol = np.interp(spill_elev, stage_storage['elev'], stage_storage['storage_cuft'])
     zone = int(scalars.loc[site, 'eto_zone'])
     gw_seep_lag = scalars.loc[site, 'gw_seep_lag']
-    deep_gw_thresh = scalars.loc[site, 'deep_gw_thresh']
-    deep_gw_wshed = scalars.loc[site, 'deep_gw_wshed']
-    deep_fault_flow_scale = scalars.loc[site, 'deep_fault_flow_scale']
+    gw_seep_thresh = scalars.loc[site, 'gw_seep_thresh']
+    gw_seep_wshed = scalars.loc[site, 'gw_seep_wshed']
+    deep_fault_flow_wshed = scalars.loc[site, 'deep_fault_flow_wshed']
     deep_fault_flow_lag = scalars.loc[site, 'deep_fault_flow_lag']
     deep_fault_flow_thresh = scalars.loc[site, 'deep_fault_flow_thresh']
     soil_depth_percent = scalars.loc[site, 'soil_depth_percent']
     
     
     ## drop un-used columns for simplicity
-    sws_calc = bc_calc.drop(bc_calc.columns[[2, 6, 7]], axis=1).copy()
+    sws_calc = bc_calc.copy()
 
     ## calculate various soil metrics: total water capacity, total root zone capacity
     percent_impervious_cov = (1 - soils['Percent of AOI'].sum() )
@@ -165,7 +168,7 @@ def pondit_output(params_model, params_to_fit, scalars, bc_calc, soils, site, st
     sws_calc['deep_fault_flow'] = 0
     if np.int(deep_fault_flow_lag * 10.0) > 0:
         sws_calc['deep_fault_flow'] = ((sws_calc['precip_in'].rolling(window=6,center=True).mean().shift(int(deep_fault_flow_lag * 10.0))) 
-                                       / 12.0 * wshed_area_sqft * deep_fault_flow_scale).fillna(0)
+                                       / 12.0 * wshed_area_sqft * deep_fault_flow_wshed).fillna(0)
         
         if deep_fault_flow_thresh != 0:
             sws_calc.loc[sws_calc['precip_percent'] < deep_fault_flow_thresh, 'deep_fault_flow'] = 0
@@ -187,12 +190,12 @@ def pondit_output(params_model, params_to_fit, scalars, bc_calc, soils, site, st
     sws_calc['gw_out_bottom'] = 0
 
     ## calculate maximum gw storage of the watershed below the root zone
-    max_gw_storage = (total_water_cap - root_water_cap) / 12.0 * (deep_gw_wshed * wshed_area_sqft) #cu ft
+    max_gw_storage = (total_water_cap - root_water_cap) / 12.0 * (gw_seep_wshed * wshed_area_sqft) #cu ft
     ## max pond volume
     max_pond_vol = stage_storage['storage_cuft'].max()
 
     ## calculate how much water is in soil column, but below root zone
-    sws_calc['not_root_water'] = (sws_calc['soil_water'] - sws_calc['ETo'] - root_water_cap).clip(lower=0) / 12.0 * deep_gw_wshed * wshed_area_sqft #cu ft
+    sws_calc['not_root_water'] = (sws_calc['soil_water'] - sws_calc['ETo'] - root_water_cap).clip(lower=0) / 12.0 * gw_seep_wshed * wshed_area_sqft #cu ft
 
 
     ## loop through whole time series (historical and projected)
@@ -215,7 +218,7 @@ def pondit_output(params_model, params_to_fit, scalars, bc_calc, soils, site, st
         if np.int(gw_seep_lag * 10.0) > 0:
 
             ## for months where that year's total precip is larger than input threshold
-            if (sws_calc.loc[n, 'precip_percent']  >= deep_gw_thresh) | (sws_calc.loc[n-1, 'gw_storage'] > 0):
+            if (sws_calc.loc[n, 'precip_percent']  >= gw_seep_thresh) | (sws_calc.loc[n-1, 'gw_storage'] > 0):
 
                 if n > np.int(gw_seep_lag *10.0)-1:## only calculate if there are enough previous months to calculate the lag
                     ## calculate gw storage below root zone: last months gw storage + the lagged 'not root water' (i.e. water stored below root zone)

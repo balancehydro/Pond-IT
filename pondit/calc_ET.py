@@ -20,7 +20,7 @@ def calc_ET(data, scalars, site, folder_in):
     bc_calc = data.copy()
     
     ##populate with required value types
-    bc_calc['mean_temp_c'] = scipy.constants.convert_temperature(bc_calc['mean_temp_f'], 'f', 'c')
+    # bc_calc['mean_temp_c'] = scipy.constants.convert_temperature(bc_calc['mean_temp_f'], 'f', 'c')
     bc_calc['month'] = list(map(lambda x: x.month, bc_calc['date']))
     bc_calc['year'] = list(map(lambda x: x.year, bc_calc['date']))
     bc_calc['p'] = list(map(lambda x: np.interp(np.float(lat), blaney_criddle.sort_index().index, 

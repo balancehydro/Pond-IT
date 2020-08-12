@@ -3,24 +3,10 @@ def calc_pondit_proj(bc_calc, scalars, site, stage_storage, soils, repo_folder):
     import numpy as np
     import pandas
     
-    ### load model parameters from master inputs sheet for model calculations
-#     wshed_area_sqft = scalars.loc[site, 'wshed_area_sqft'] ##watershed area
-#     spill_elev = scalars.loc[site, 'spillway_elev']
-#     spill_vol = np.interp(spill_elev, stage_storage['elev'], stage_storage['storage_cuft'])
-#     soil_depth_percent = scalars.loc[site, 'soil_depth_percent']
+
     
-    
-    
-# #    ## calculate various soil metrics: total water capacity, total root zone capacity
-#     percent_impervious_cov = (1 - soils['Percent of AOI'].sum() )
-#     area_weight_water_cap = ((soils['Percent of AOI'] * soils['Depth Weighted Water Capacity']).sum() /
-#                                 soils['Percent of AOI'].sum()) #in/in
-#     area_weight_profile_depth = ((soils['Percent of AOI'] * soils['Profile Thickness (inches)']).sum() / 
-#                                      (1 - percent_impervious_cov)) #inches
-#     total_water_cap = area_weight_profile_depth * area_weight_water_cap  * soil_depth_percent #inches
-    
-    params_to_fit = ['gw_out_et_percent', 'gw_out_bottom', 'rainfall_area_percent', 'soil_depth_percent', 'gw_in_percent', 'deep_fault_flow_scale', 'deep_fault_flow_thresh', 'deep_fault_flow_lag',
-                     'deep_gw_wshed', 'deep_gw_thresh', 'gw_seep_lag']
+    params_to_fit = ['gw_out_et_percent', 'gw_out_bottom', 'rainfall_area_percent', 'soil_depth_percent', 'gw_in_percent', 'deep_fault_flow_wshed', 'deep_fault_flow_thresh', 'deep_fault_flow_lag',
+                     'gw_seep_wshed', 'gw_seep_thresh', 'gw_seep_lag']
     
     
     params_model = scalars.loc[site, params_to_fit]
@@ -42,7 +28,7 @@ def calc_pondit_proj(bc_calc, scalars, site, stage_storage, soils, repo_folder):
 
 def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, site, stage_storage):
     ### set up model parameters and parameters that remain constant
-#     gw_out_et_percent, gw_out_bottom, rainfall_area_percent, soil_depth_percent, gw_in_percent, deep_fault_flow_scale, deep_fault_flow_thresh, deep_gw_wshed, deep_gw_thresh, deep_fault_flow_lag, gw_seep_lag  = params_model
+#     gw_out_et_percent, gw_out_bottom, rainfall_area_percent, soil_depth_percent, gw_in_percent, deep_fault_flow_wshed, deep_fault_flow_thresh, gw_seep_wshed, gw_seep_thresh, deep_fault_flow_lag, gw_seep_lag  = params_model
 #     total_water_cap, wshed_area_sqft, spill_elev, spill_vol = params_cons
     import numpy as np
 
@@ -57,16 +43,16 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
     spill_vol = np.interp(spill_elev, stage_storage['elev'], stage_storage['storage_cuft'])
     zone = int(scalars.loc[site, 'eto_zone'])
     gw_seep_lag = scalars.loc[site, 'gw_seep_lag']
-    deep_gw_thresh = scalars.loc[site, 'deep_gw_thresh']
-    deep_gw_wshed = scalars.loc[site, 'deep_gw_wshed']
-    deep_fault_flow_scale = scalars.loc[site, 'deep_fault_flow_scale']
+    gw_seep_thresh = scalars.loc[site, 'gw_seep_thresh']
+    gw_seep_wshed = scalars.loc[site, 'gw_seep_wshed']
+    deep_fault_flow_wshed = scalars.loc[site, 'deep_fault_flow_wshed']
     deep_fault_flow_lag = scalars.loc[site, 'deep_fault_flow_lag']
     deep_fault_flow_thresh = scalars.loc[site, 'deep_fault_flow_thresh']
     soil_depth_percent = scalars.loc[site, 'soil_depth_percent']
     
     
     ## drop un-used columns for simplicity
-    sws_calc = bc_calc.drop(bc_calc.columns[[2, 6, 7]], axis=1).copy()
+    sws_calc = bc_calc.copy()
 
     ## calculate various soil metrics: total water capacity, total root zone capacity
     percent_impervious_cov = (1 - soils['Percent of AOI'].sum() )
@@ -118,7 +104,7 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
     sws_calc['deep_fault_flow'] = 0
     if np.int(deep_fault_flow_lag * 10.0) > 0:
         sws_calc['deep_fault_flow'] = ((sws_calc['precip_in'].rolling(window=6,center=True).mean().shift(int(deep_fault_flow_lag * 10.0))) 
-                                       / 12.0 * wshed_area_sqft * deep_fault_flow_scale).fillna(0)
+                                       / 12.0 * wshed_area_sqft * deep_fault_flow_wshed).fillna(0)
         
         if deep_fault_flow_thresh != 0:
             sws_calc.loc[sws_calc['precip_percent'] < deep_fault_flow_thresh, 'deep_fault_flow'] = 0
@@ -140,12 +126,12 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
     sws_calc['gw_out_bottom'] = 0
 
     ## calculate maximum gw storage of the watershed below the root zone
-    max_gw_storage = (total_water_cap - root_water_cap) / 12.0 * (deep_gw_wshed * wshed_area_sqft) #cu ft
+    max_gw_storage = (total_water_cap - root_water_cap) / 12.0 * (gw_seep_wshed * wshed_area_sqft) #cu ft
     ## max pond volume
     max_pond_vol = stage_storage['storage_cuft'].max()
 
     ## calculate how much water is in soil column, but below root zone
-    sws_calc['not_root_water'] = (sws_calc['soil_water'] - sws_calc['ETo'] - root_water_cap).clip(lower=0) / 12.0 * deep_gw_wshed * wshed_area_sqft #cu ft
+    sws_calc['not_root_water'] = (sws_calc['soil_water'] - sws_calc['ETo'] - root_water_cap).clip(lower=0) / 12.0 * gw_seep_wshed * wshed_area_sqft #cu ft
 
 
     ## loop through whole time series (historical and projected)
@@ -168,7 +154,7 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
         if np.int(gw_seep_lag * 10.0) > 0:
 
             ## for months where that years total precip is larger than input threshold
-            if (sws_calc.loc[n, 'precip_percent']  >= deep_gw_thresh) | (sws_calc.loc[n-1, 'gw_storage'] > 0):
+            if (sws_calc.loc[n, 'precip_percent']  >= gw_seep_thresh) | (sws_calc.loc[n-1, 'gw_storage'] > 0):
 
                 if n > np.int(gw_seep_lag * 10.0)-1:## only calculate if there are enough previous months to calculate the lag
                     ## calculate gw storage below root zone: last months gw storage + the lagged 'not root water' (i.e. water stored below root zone)

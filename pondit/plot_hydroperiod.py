@@ -1,6 +1,6 @@
 
 
-def plot_hydroperiod(sws_calc, scalars, site, folder_out):
+def plot_hydroperiod(sws_calc_elev, scalars, site, folder_out):
     import pandas
     import numpy as np
     import matplotlib.pylab as plt
@@ -10,7 +10,7 @@ def plot_hydroperiod(sws_calc, scalars, site, folder_out):
     import seaborn
 
     ## pond minimum pond elevation to indicate when pond is dry
-    pond_min = sws_calc.loc[:, :, 'pond_elev'].min().min() ## model calculation always initialized with minimum pond elevation
+    pond_min = sws_calc_elev.min().min() ## model calculation always initialized with minimum pond elevation
 
     plot_inundation = scalars.loc[site, 'plot_inundation'] ## target ponding depth for results plot
     
@@ -21,8 +21,8 @@ def plot_hydroperiod(sws_calc, scalars, site, folder_out):
     
 
     ## pull out pond elevation data
-    pond_elev = sws_calc.loc[:, :, 'pond_elev'].copy()
-    pond_elev.index = sws_calc.loc[sws_calc.items[0],  :, 'date'] ## specify index as date
+    pond_elev = sws_calc_elev.copy()
+    # pond_elev.index = sws_calc.loc[sws_calc.items[0],  :, 'date'] ## specify index as date
 
     ## target depth is pond_min plus plot_inundation
     pond_elev[pond_elev <= pond_min + plot_inundation] = -9999 ## when depth less than target, set to nan

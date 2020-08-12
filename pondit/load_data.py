@@ -9,18 +9,18 @@ def load_data(scalars, site, folder_in):
     hist_data_filename = scalars.loc[site, 'hist_data_filename'] 
     calib_area_filename = scalars.loc[site, 'calib_area_filename']
     calib_elev_filename = scalars.loc[site, 'calib_elev_filename']
-    vol_area_elev_filename = scalars.loc[site, 'vol_area_elev_filename']
+    vol_area_elev_filename = scalars.loc[site, 'stage_storage_filename']
     soils_filename = scalars.loc[site, 'soils_filename']
     stage_storage_sheet_name = scalars.loc[site, 'stage_storage_sheetname']
-    soils_sheet_name = scalars.loc[site, 'soils_sheet_name']
-    calib_area_sheet_name = scalars.loc[site, 'calib_area_sheet_name']
-    calib_elev_sheet_name = scalars.loc[site, 'calib_elev_sheet_name']
+    soils_sheet_name = scalars.loc[site, 'soils_sheetname']
+    calib_area_sheet_name = scalars.loc[site, 'calib_area_sheetname']
+    calib_elev_sheet_name = scalars.loc[site, 'calib_elev_sheetname']
 
 
     ### load historical climate data
-    parser = lambda dates: [datetime.datetime.strptime(x, '%b-%y') for x in dates] 
-    hist_climate = pandas.read_csv(folder_in + 'hist_climate/' + hist_data_filename + '.csv', skiprows=10, parse_dates=[0], date_parser=parser)
-    hist_climate.columns = ['date', 'precip_in', 'mean_temp_f'] ## rename columns
+    # parser = lambda dates: [datetime.datetime.strptime(x, '%Y-%m-%d') for x in dates] 
+    hist_climate = pandas.read_csv(folder_in + 'hist_climate/' + hist_data_filename + '.csv', parse_dates=[0])#, date_parser=parser)
+    hist_climate.columns = ['date', 'precip_in', 'mean_temp_c'] ## rename columns
 
 
     data = hist_climate.copy()
