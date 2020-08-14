@@ -1,3 +1,2 @@
 site,status,plot_inundation,lattitude,eto_zone,spillway_elev,wshed_area_sqft,soils_sheetname,stage_storage_sheetname,calib_area_filename,calib_area_sheetname,calib_elev_filename,calib_elev_sheetname,stage_storage_filename,soils_filename,hist_data_filename,proj_precip_filename,proj_temp_filename,gw_seep,gw_fault
-Pond3,run,0,37.21736,8,653.7,1632885.21,Pond3,Pond3,219007_google_earth_validation,Pond3,219007_ponds_wse_monthly,Pond3,219007_stage_storage,219007_soils,CROSP,pr_proj,tas_proj,n,y
-Pond5,done,0,37.210589,8,473,308170.7552,Pond5,Pond5,219007_google_earth_validation,Pond5,219007_ponds_wse_monthly,Pond5,219007_stage_storage,219007_soils,CROSP,pr_proj,tas_proj,n,y
+Pond_TA,run,1,37.11068,8,807.8,1646227,Sheet1,Sheet1,pond_area_calibration,Sheet1,elev_calib_empty,Sheet1,stage_storage,watershed_soil_characteristics,historical_climate_pyth,projected_precip_pyth,projected_temp_pyth,y,y
