@@ -46,7 +46,6 @@ def load_data(scalars, site, folder_in):
     ## create merged calibration data 
     calib_data = pandas.merge(elev_calib, area_calib[['calib_wse_ft']], right_index=True, left_index=True, how='outer', suffixes=['_elev', '_area'])
     calib_data = calib_data.resample('MS').mean().dropna(how='all')
-    print(calib_data)
     calib_data['calib_wse_ft'] = calib_data.mean(skipna=True, axis=1)
 
     return stage_storage, soils, data, last_hist_date, calib_data
