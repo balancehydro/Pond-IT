@@ -28,7 +28,6 @@ def load_data(scalars, site, folder_in):
 
     ## load site-specific stage-storage
     stage_storage = pandas.read_excel(folder_in + vol_area_elev_filename + '.xlsx', sheet_name=stage_storage_sheet_name)
-    stage_storage['storage_cuft'] = stage_storage['storage_acft'] * 43560 ## get storage in acre-feet
 
     
     ##load site specific soils data
