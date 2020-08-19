@@ -4,8 +4,8 @@ def load_climate_data(data_in, model, scalars, site, folder_in, proj_pre_raw, pr
     import numpy as np
     import calendar
     climate_data = pandas.DataFrame(proj_pre_raw['date'])
-    climate_data['num_days_month'] = list(map(lambda x: np.float(calendar.monthrange(x.year, x.month)[1]), climate_data['date']))
-    climate_data['precip_in_proj'] = proj_pre_raw.loc[:, model] * climate_data['num_days_month']  / 25.4 ## convert from mm/day to inches/month
+    # climate_data['num_days_month'] = list(map(lambda x: np.float(calendar.monthrange(x.year, x.month)[1]), climate_data['date']))
+    climate_data['precip_in_proj'] = proj_pre_raw.loc[:, model] #* climate_data['num_days_month']  / 25.4 ## convert from mm/day to inches/month
     climate_data['mean_temp_c_proj'] = proj_temp_raw.loc[:, model]
 
     
@@ -17,14 +17,14 @@ def load_climate_data(data_in, model, scalars, site, folder_in, proj_pre_raw, pr
     data_merged['count_col'] = data_merged['mean_temp_c']
 
     ### limit to complete water years
-    annual_climate_hist = data_merged.groupby('wy').agg({'precip_in': 'sum', 'precip_in_proj':'sum', 'mean_temp_c':'mean', 'mean_temp_c_proj':'mean', 'count_col':'count'}).loc[1976:2017]
+    annual_climate_hist = data_merged.groupby('wy').agg({'precip_in': 'sum', 'precip_in_proj':'sum', 'mean_temp_c':'mean', 'mean_temp_c_proj':'mean', 'count_col':'count'})#.loc[1976:2017]
     annual_climate_hist = annual_climate_hist.loc[annual_climate_hist['count_col'] ==12, :]
 
     precip_scale = annual_climate_hist['precip_in'].median() / annual_climate_hist['precip_in_proj'].median()
     temp_scale = annual_climate_hist['mean_temp_c'].median() / annual_climate_hist['mean_temp_c_proj'].median()
     
-    data_merged['precip_in_proj'] = data_merged['precip_in_proj'] * precip_scale
-    data_merged['mean_temp_c_proj'] = data_merged['mean_temp_c_proj'] * temp_scale
+    data_merged['precip_in_proj'] = data_merged['precip_in_proj'] #* precip_scale
+    data_merged['mean_temp_c_proj'] = data_merged['mean_temp_c_proj'] #* temp_scale
 
     data_out = data_merged.copy()
     data_out['precip_in'].fillna(data_out['precip_in_proj'], inplace=True)

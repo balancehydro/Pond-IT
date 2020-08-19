@@ -55,7 +55,6 @@ def calc_pondit(bc_calc, scalars, site, stage_storage, soils, repo_folder, calib
     ## calibration data
     y = np.array(calib_data['calib_wse_ft'])
 
-
     p0=params_model #inital parameters guess
 
     ## define bounds using default parameters sheet
@@ -87,7 +86,7 @@ def pondit_calib(params_model, params_to_fit, scalars, bc_calc_model, soils, cal
     
     
     y = calib_data['calib_wse_ft']
-        
+
     out = np.array(sws_calc.loc[sws_calc['date'].isin(y.index), 'pond_elev'])
     print(params_model, 'sum squared error: ', np.power(np.array(y)-out, 2).sum())
     return out
