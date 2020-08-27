@@ -37,7 +37,7 @@ def load_data(scalars, site, folder_in):
     area_calib = pandas.read_excel(folder_in + calib_area_filename + '.xlsx', index_col='date', sheet_name=calib_area_sheet_name)
     area_calib.index = pandas.to_datetime(area_calib.index)
     ### convert pond are to pond elevation
-    area_calib['calib_wse_ft'] = np.interp(area_calib['area_sqft'], stage_storage['area_sqft'], stage_storage['elev'])
+    area_calib['calib_wse_ft'] = np.interp(area_calib['area_sqft'], stage_storage['area_sqft'], stage_storage['elev_ft'])
 
     ## load elevation calibration data, recorded in feet
     elev_calib = pandas.read_excel(folder_in + calib_elev_filename + '.xlsx', index_col='date', sheet_name=calib_elev_sheet_name)

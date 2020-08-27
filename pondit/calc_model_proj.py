@@ -40,7 +40,7 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
     gw_out_bottom = scalars.loc[site, 'gw_out_bottom']
     gw_in_percent = scalars.loc[site, 'gw_in_percent']
     rainfall_area_percent = scalars.loc[site, 'rainfall_area_percent']
-    spill_vol = np.interp(spill_elev, stage_storage['elev'], stage_storage['storage_cuft'])
+    spill_vol = np.interp(spill_elev, stage_storage['elev_ft'], stage_storage['storage_cuft'])
     zone = int(scalars.loc[site, 'eto_zone'])
     gw_seep_lag = scalars.loc[site, 'gw_seep_lag']
     gw_seep_thresh = scalars.loc[site, 'gw_seep_thresh']
@@ -102,8 +102,8 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
 
     ## calculate deep fault flow: rolling average of precip (over 6 months), shifted by specified lag, scaled by input parameter, over the whole watershed
     sws_calc['deep_fault_flow'] = 0
-    if np.int(deep_fault_flow_lag * 10.0) > 0:
-        sws_calc['deep_fault_flow'] = ((sws_calc['precip_in'].rolling(window=6,center=True).mean().shift(int(deep_fault_flow_lag * 10.0))) 
+    if np.int(deep_fault_flow_lag) > 0:
+        sws_calc['deep_fault_flow'] = ((sws_calc['precip_in'].rolling(window=6,center=True).mean().shift(int(deep_fault_flow_lag))) 
                                        / 12.0 * wshed_area_sqft * deep_fault_flow_wshed).fillna(0)
         
         if deep_fault_flow_thresh != 0:
@@ -115,7 +115,7 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
     sws_calc.loc[0, 'pond_et'] = 0
     sws_calc.loc[0, 'pond_area'] = 0
     sws_calc.loc[0, 'pond_volume'] = 0
-    sws_calc.loc[0, 'pond_elev'] = stage_storage['elev'].min()
+    sws_calc.loc[0, 'pond_elev'] = stage_storage['elev_ft'].min()
     sws_calc.loc[0, 'direct_rainfall'] = 0
 #     sws_calc.loc[0, 'not_root_water'] = 0
     sws_calc['gw_storage'] = 0
@@ -151,14 +151,14 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
         
         ### if model parameterization has groundwater input seep: the seep module represents groundwater inputs from shallow bedrock fractures, 
         ### or other medium-term lagged groundwater inputs that may contribute to seeps
-        if np.int(gw_seep_lag * 10.0) > 0:
+        if np.int(gw_seep_lag) > 0:
 
             ## for months where that years total precip is larger than input threshold
             if (sws_calc.loc[n, 'precip_percent']  >= gw_seep_thresh) | (sws_calc.loc[n-1, 'gw_storage'] > 0):
 
-                if n > np.int(gw_seep_lag * 10.0)-1:## only calculate if there are enough previous months to calculate the lag
+                if n > np.int(gw_seep_lag)-1:## only calculate if there are enough previous months to calculate the lag
                     ## calculate gw storage below root zone: last months gw storage + the lagged 'not root water' (i.e. water stored below root zone)
-                    sws_calc.loc[n, 'gw_storage'] = sws_calc.loc[n-1, 'gw_storage'] + sws_calc.loc[n - np.int(gw_seep_lag * 10.0), 'not_root_water']
+                    sws_calc.loc[n, 'gw_storage'] = sws_calc.loc[n-1, 'gw_storage'] + sws_calc.loc[n - np.int(gw_seep_lag), 'not_root_water']
 
                     ## calculate the percent by which to discharge the stored groundwater into the pond, 
                     ## calculated as percent full, rescaled to run from 25 to 92%, (so that all of it can't leave at once, and so something always discharges if available)
@@ -196,6 +196,6 @@ def pondit_output(params_model, params_to_fit, scalars, p, t, bc_calc, soils, si
 
         #calculate this months pond elevation, interpolated from stage-storage
         sws_calc.loc[n, 'pond_elev'] = np.interp(sws_calc.loc[n, 'pond_volume'], stage_storage['storage_cuft'], 
-                                                 stage_storage['elev'])
+                                                 stage_storage['elev_ft'])
 #         print(sws_calc)
     return sws_calc

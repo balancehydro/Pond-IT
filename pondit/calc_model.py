@@ -63,7 +63,7 @@ def calc_pondit(bc_calc, scalars, site, stage_storage, soils, repo_folder, calib
         bounds = bounds + ((default_params.loc['min', param], default_params.loc['max', param]),)
     
     ## minimize residuals
-    out = scipy.optimize.minimize(residuals, p0, method='SLSQP', bounds=bounds, options={'disp':True, 'eps':0.1, 'ftol':0.001})
+    out = scipy.optimize.minimize(residuals, p0, method='SLSQP', bounds=bounds, options={'disp':True, 'eps':0.1, 'ftol':0.005})
     print(out) ## print final result
 
     ## calculate final results with optimized model parameters for entier historical period for output
@@ -73,6 +73,7 @@ def calc_pondit(bc_calc, scalars, site, stage_storage, soils, repo_folder, calib
     ## save optimal model parameters
     scalars_out = scalars.copy()
     scalars_out.loc[site, params_to_fit] = out.x
+    scalars_out.loc[:, ['deep_fault_flow_lag', 'gw_seep_lag']]  = np.int64(scalars_out.loc[:, ['deep_fault_flow_lag', 'gw_seep_lag']] * 10.0) # multiple lag by 10 to put into month units
     
     
     return sws_calc, out, scalars_out
@@ -103,7 +104,7 @@ def pondit_output(params_model, params_to_fit, scalars, bc_calc, soils, site, st
     gw_out_bottom = scalars.loc[site, 'gw_out_bottom']
     gw_in_percent = scalars.loc[site, 'gw_in_percent']
     rainfall_area_percent = scalars.loc[site, 'rainfall_area_percent']
-    spill_vol = np.interp(spill_elev, stage_storage['elev'], stage_storage['storage_cuft'])
+    spill_vol = np.interp(spill_elev, stage_storage['elev_ft'], stage_storage['storage_cuft'])
     zone = int(scalars.loc[site, 'eto_zone'])
     gw_seep_lag = scalars.loc[site, 'gw_seep_lag']
     gw_seep_thresh = scalars.loc[site, 'gw_seep_thresh']
@@ -178,7 +179,7 @@ def pondit_output(params_model, params_to_fit, scalars, bc_calc, soils, site, st
     sws_calc.loc[0, 'pond_et'] = 0
     sws_calc.loc[0, 'pond_area'] = 0
     sws_calc.loc[0, 'pond_volume'] = 0
-    sws_calc.loc[0, 'pond_elev'] = stage_storage['elev'].min()
+    sws_calc.loc[0, 'pond_elev'] = stage_storage['elev_ft'].min()
     sws_calc.loc[0, 'direct_rainfall'] = 0
 #     sws_calc.loc[0, 'not_root_water'] = 0
     sws_calc['gw_storage'] = 0
@@ -259,6 +260,6 @@ def pondit_output(params_model, params_to_fit, scalars, bc_calc, soils, site, st
 
         #calculate this months pond elevation, interpolated from stage-storage
         sws_calc.loc[n, 'pond_elev'] = np.interp(sws_calc.loc[n, 'pond_volume'], stage_storage['storage_cuft'], 
-                                                 stage_storage['elev'])
+                                                 stage_storage['elev_ft'])
 #         print(sws_calc)
     return sws_calc
