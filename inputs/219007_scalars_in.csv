@@ -1,3 +1,0 @@
-site,bh_wse,status,hist_date,pre_proj_filename,temp_proj_filename,include_monitoring,predict_model,plot_inundation,prism_cell,lattitude,eto_zone,spillway_elev,wshed_area_sqft,gw_out_et_percent,gw_out_bottom,rainfall_area_percent,soil_depth_percent,gw_in_percent,deep_fault_flow_scale,deep_fault_flow_thresh,deep_fault_flow_wshed,deep_gw_wshed,deep_gw_thresh,deep_fault_flow_lag,gw_seep_lag
-Pond3,Pond3,run,2019-11-20,pr_proj,tas_proj,Y,Y,0,CROSP,37.21736,8,653.7,"1,300,000.00",0.05,0.05,2,1,0.01,0.01,0.5,1,2,0.5,7,3
-Pond5,Pond5,run,2019-11-20,pr_proj,tas_proj,Y,Y,0,CROSP,37.210589,8,473,"308,170.76",0.05,0.05,2,1,0.01,0.01,0.5,1,2,0.5,7,3
