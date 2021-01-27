@@ -1,8 +1,7 @@
 name: pond-it
-channels: !!python/tuple
+channels:
 - defaults
 - conda-forge
-- anaconda
 dependencies:
 - python=3.6.*
 - pip
