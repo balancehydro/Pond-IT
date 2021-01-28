@@ -27,20 +27,20 @@ def load_data(scalars, site, folder_in):
     last_hist_date = hist_climate.loc[len(hist_climate)-1, 'date']
 
     ## load site-specific stage-storage
-    stage_storage = pandas.read_excel(folder_in + vol_area_elev_filename + '.xlsx', sheet_name=stage_storage_sheet_name)
+    stage_storage = pandas.read_excel(folder_in + vol_area_elev_filename + '.xlsx', sheet_name=stage_storage_sheet_name, engine='openpyxl')
 
     
     ##load site specific soils data
-    soils = pandas.read_excel(folder_in + soils_filename + '.xlsx', sheet_name=soils_sheet_name)
+    soils = pandas.read_excel(folder_in + soils_filename + '.xlsx', sheet_name=soils_sheet_name, engine='openpyxl')
 
     ## load calibration specified as pond area
-    area_calib = pandas.read_excel(folder_in + calib_area_filename + '.xlsx', index_col='date', sheet_name=calib_area_sheet_name)
+    area_calib = pandas.read_excel(folder_in + calib_area_filename + '.xlsx', index_col='date', sheet_name=calib_area_sheet_name, engine='openpyxl')
     area_calib.index = pandas.to_datetime(area_calib.index)
     ### convert pond are to pond elevation
     area_calib['calib_wse_ft'] = np.interp(area_calib['area_sqft'], stage_storage['area_sqft'], stage_storage['elev_ft'])
 
     ## load elevation calibration data, recorded in feet
-    elev_calib = pandas.read_excel(folder_in + calib_elev_filename + '.xlsx', index_col='date', sheet_name=calib_elev_sheet_name)
+    elev_calib = pandas.read_excel(folder_in + calib_elev_filename + '.xlsx', index_col='date', sheet_name=calib_elev_sheet_name, engine='openpyxl')
     elev_calib.index = pandas.to_datetime(elev_calib.index)
 
     ## create merged calibration data 
