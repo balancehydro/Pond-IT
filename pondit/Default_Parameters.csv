@@ -7,6 +7,6 @@ gw_in_percent,0.1,0,2
 deep_fault_flow_wshed,0.01,0,0.2
 deep_fault_flow_thresh,0.5,0,3
 deep_fault_flow_lag,7,5,9
-gw_seep_wshed,0.2,0,4
+gw_seep_wshed,0.2,0.000000001,4
 gw_seep_thresh,0.5,0,4
 gw_seep_lag,4,2,5
