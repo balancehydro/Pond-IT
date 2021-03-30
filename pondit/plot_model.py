@@ -2,16 +2,17 @@ def plot_model(sws_calc, scalars, site, folder_out):
 
     import matplotlib.pylab as plt
     import datetime
+    import numpy as np
 
     ## make model plot timeseries
     f, ax = plt.subplots(1, 1, figsize=(14, 6))
 
     sws_plot = sws_calc.loc['2000-10-01'::, :] ## assuming calibration data is not reliable prior to wy 2000 (pond sedimentation) or available
     ## plot modeled WSE
-    ax.plot(sws_plot['date'], sws_plot['pond_elev'], label='Model (Historical)', zorder=2, color='C0')
+    ax.plot(np.array(sws_plot['date']), np.array(sws_plot['pond_elev']), label='Model (Historical)', zorder=2, color='C0')
  	## plot calibration data (bug in matplotlib which prevents the use of scatter with a datetime columns)
     if 'calib_wse_ft' in sws_calc.columns: #only plot calibration data for historical model which uses calibration data to predict, not for historical design runs
-        ax.plot(sws_plot['date'], sws_plot['calib_wse_ft'], zorder=2, color='C1', label='Calibration Data', linestyle='', marker='o')
+        ax.plot(np.array(sws_plot['date']), np.array(sws_plot['calib_wse_ft']), zorder=2, color='C1', label='Calibration Data', linestyle='', marker='o')
     
 
     #plot pond bottom and spillway elev
