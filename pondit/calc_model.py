@@ -227,7 +227,6 @@ def pondit_output(params_model, params_to_fit, scalars, bc_calc, soils, site, st
                     ## calculate the percent by which to discharge the stored groundwater into the pond, 
                     ## calculated as percent full, rescaled to run from 25 to 92%, (so that all of it can't leave at once, and so something always discharges if available)
                     sws_calc.loc[n, 'gw_seep_percent'] = (sws_calc.loc[n, 'gw_storage'] / max_gw_storage) / 1.5 + 0.25
-                    print(sws_calc.loc[n, 'gw_seep_percent'], sws_calc.loc[n, 'gw_storage'], max_gw_storage)
 
                     ## calculate min discharge from seep: min of either last months gw storage or last months losses (both gw out and ET)
                     ## i.e. can't discharge more water than leaves the pond to control the rate of groundwater discharge
