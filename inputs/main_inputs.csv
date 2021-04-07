@@ -1,3 +1,3 @@
 site,status,plot_inundation,lattitude,eto_zone,spillway_elev,wshed_area_sqft,soils_filename,soils_sheetname,stage_storage_filename,stage_storage_sheetname,calib_area_filename,calib_area_sheetname,calib_elev_filename,calib_elev_sheetname,hist_data_filename,proj_precip_filename,proj_temp_filename,gw_seep,gw_fault
-Eagle,done,0,37.308854,8,11.737,564000,watershed_soil_characteristics,Eagle,stage_storage,Eagle,area_calib,Eagle,elev_calib,Eagle,HistoricalClimate_Eagle,ProjectedPrecip_Eagle,ProjectedAirTemp_Eagle,n,n
-CHB-03,run,0,37.110651,8,807.8,983000,watershed_soil_characteristics,CHB-03,stage_storage,CHB-03,area_calib,CHB-03,elev_calib,CHB-03,HistoricalClimate_CHB-03,ProjectedPrecip_CHB-03,ProjectedAirTemp_CHB-03,y,y
+Eagle,run,0,37.308854,8,11.737,564000,watershed_soil_characteristics,Eagle,stage_storage,Eagle,area_calib,Eagle,elev_calib,Eagle,HistoricalClimate_Eagle,ProjectedPrecip_Eagle,ProjectedAirTemp_Eagle,n,n
+CHB-03,done,0,37.110651,8,807.8,983000,watershed_soil_characteristics,CHB-03,stage_storage,CHB-03,area_calib,CHB-03,elev_calib,CHB-03,HistoricalClimate_CHB-03,ProjectedPrecip_CHB-03,ProjectedAirTemp_CHB-03,y,y
